@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">The Drummers App</string>
+    <string name="startButtonText">Start</string>
+    <string name="stopButtonText">Stop</string>
+    <string name="freqUnitString">Hz</string>
+    <string name="defaultHzValue">440.0</string>
+</resources>

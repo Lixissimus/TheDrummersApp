@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="C:\Users\Felix\Documents\Projects\TheDrummersApp\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.1.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="d0dda274b703dd9c5bb056867649d22b4171ae7d">
+        <dex dex="C:\Users\Felix\Documents\Projects\TheDrummersApp\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-basement-8.1.0_0cf582b25d7617971c3c715b2c7dc9ecdfc0b2af.jar" />
+    </item>
+    <item
+        jar="C:\Users\Felix\Documents\Projects\TheDrummersApp\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-appindexing\8.1.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="4477ea44f5ec5ad064022a22691732d7638ff197">
+        <dex dex="C:\Users\Felix\Documents\Projects\TheDrummersApp\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-appindexing-8.1.0_83c0a3b15c1a6e5924bf5b7dc843df51471a8851.jar" />
+    </item>
+
+</items>
