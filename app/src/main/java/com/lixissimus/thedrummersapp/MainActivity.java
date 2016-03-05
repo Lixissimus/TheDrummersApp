@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import be.tarsos.dsp.pitch.PitchDetectionResult;
@@ -18,14 +18,20 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "DrummersApp";
 
     final int SAMPLING_RATE = 8000;
-
     private boolean recording = false;
+
+    DBHandler dbHandler;
+    TextView textViewDB;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        dbHandler = new DBHandler(this, null, null, 1);
+
+        textViewDB = (TextView) findViewById(R.id.textViewDB);
     }
 
     @Override
@@ -40,6 +46,15 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         Log.i(TAG, "Start recording due to onResume event");
         startRecording();
+    }
+
+    public void printDBButtonClicked(View view) {
+        String contents = dbHandler.configurationsToString();
+        textViewDB.setText(contents);
+    }
+
+    public void seedButtonClicked(View view) {
+        dbHandler.seed();
     }
 
     private void startRecording() {
