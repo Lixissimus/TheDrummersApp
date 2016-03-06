@@ -53,15 +53,16 @@ public class DrumListActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(TunerContentProvider.ITEMS));
+        TunerContentProvider cp = new TunerContentProvider(this);
+        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(cp.getDrumsList()));
     }
 
     public class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
-        private final List<TunerContentProvider.DrumItem> mValues;
+        private final List<DrumSet.Drum> mValues;
 
-        public SimpleItemRecyclerViewAdapter(List<TunerContentProvider.DrumItem> items) {
+        public SimpleItemRecyclerViewAdapter(List<DrumSet.Drum> items) {
             mValues = items;
         }
 
@@ -75,15 +76,15 @@ public class DrumListActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
             holder.mItem = mValues.get(position);
-            holder.mIdView.setText(mValues.get(position).id);
-            holder.mContentView.setText(mValues.get(position).name);
+            holder.mIdView.setText(mValues.get(position).getName());
+            holder.mContentView.setText(mValues.get(position).getName());
 
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mTwoPane) {
                         Bundle arguments = new Bundle();
-                        arguments.putString(DrumDetailFragment.ARG_ITEM_ID, holder.mItem.id);
+                        arguments.putString(DrumDetailFragment.ARG_ITEM_ID, holder.mItem.getName());
                         DrumDetailFragment fragment = new DrumDetailFragment();
                         fragment.setArguments(arguments);
                         getSupportFragmentManager().beginTransaction()
@@ -92,7 +93,7 @@ public class DrumListActivity extends AppCompatActivity {
                     } else {
                         Context context = v.getContext();
                         Intent intent = new Intent(context, DrumDetailActivity.class);
-                        intent.putExtra(DrumDetailFragment.ARG_ITEM_ID, holder.mItem.id);
+                        intent.putExtra(DrumDetailFragment.ARG_ITEM_ID, holder.mItem.getName());
 
                         context.startActivity(intent);
                     }
@@ -109,7 +110,7 @@ public class DrumListActivity extends AppCompatActivity {
             public final View mView;
             public final TextView mIdView;
             public final TextView mContentView;
-            public TunerContentProvider.DrumItem mItem;
+            public DrumSet.Drum mItem;
 
             public ViewHolder(View view) {
                 super(view);

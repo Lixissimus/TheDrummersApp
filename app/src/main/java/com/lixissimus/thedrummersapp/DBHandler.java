@@ -52,6 +52,26 @@ public class DBHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    public DrumSet getDrumSet(String drumSetName) {
+        String query = "SELECT * FROM " + TABLE_DRUMSETS + " WHERE " + COLUMN_NAME + "=\"" + drumSetName + "\";";
+        SQLiteDatabase db = getWritableDatabase();
+
+        Cursor c = db.rawQuery(query, null);
+        if (c.getCount() < 1) {
+            return null;
+        }
+
+        c.moveToFirst();
+
+        DrumSet drumSet = new DrumSet(
+                c.getString(c.getColumnIndex(COLUMN_NAME)),
+                c.getString(c.getColumnIndex(COLUMN_DRUMS)),
+                c.getString(c.getColumnIndex(COLUMN_FREQS))
+        );
+
+        return drumSet;
+    }
+
     public void deleteDrumSet(String drumSetName) {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_DRUMSETS + " WHERE " + COLUMN_NAME + "=\"" + drumSetName + "\";");
@@ -75,6 +95,7 @@ public class DBHandler extends SQLiteOpenHelper {
         }
 
         db.close();
+        c.close();
         return drumSetString;
     }
 

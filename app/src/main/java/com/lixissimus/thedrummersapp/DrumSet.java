@@ -2,13 +2,14 @@ package com.lixissimus.thedrummersapp;
 
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class DrumSet {
 
     private int _id;
     private String configName;
     
-    private HashMap<String, Drum> drums = new HashMap<>();
+    private Map<String, Drum> drums = new HashMap<>();
     private String drumsString = "";
     private String freqsString = "";
     private boolean stringsValid = false;
@@ -18,6 +19,27 @@ public class DrumSet {
 
     public DrumSet(String name) {
         this.configName = name;
+    }
+
+    public DrumSet(String name, String drumsString, String freqsString) {
+        this.configName = name;
+
+        String[] drumsStringVals = drumsString.split(",");
+        String[] freqsStringVals = freqsString.split(",");
+
+        // we need to have twice as many frequencies as drums
+        if ((2 * drumsStringVals.length) != freqsStringVals.length) {
+            throw new AssertionError();
+        }
+
+        int i = 0;
+        for (String drumName : drumsStringVals) {
+            Drum d = new Drum(drumName);
+            d.setBatterFreq(Integer.parseInt(freqsStringVals[i*2].trim()));
+            d.setResoFreq(Integer.parseInt(freqsStringVals[i * 2 + 1].trim()));
+            addDrum(d);
+            i++;
+        }
     }
 
     public void addDrum(Drum drum) {
@@ -43,6 +65,10 @@ public class DrumSet {
             drums.put(drum.getName(), drum);
             stringsValid = false;
         }
+    }
+
+    public Map<String, Drum> getDrums() {
+        return drums;
     }
 
     public String getConfigName() {

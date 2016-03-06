@@ -1,11 +1,19 @@
 package com.lixissimus.thedrummersapp;
 
+import android.content.Context;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import be.tarsos.dsp.pitch.PitchDetectionResult;
+import be.tarsos.dsp.pitch.Yin;
 
 /**
  * A fragment representing a single Drum detail screen.
@@ -14,6 +22,8 @@ import android.widget.TextView;
  * on handsets.
  */
 public class DrumDetailFragment extends Fragment {
+
+    private static final String TAG = "DetailFragment";
     /**
      * The fragment argument representing the item ID that this fragment
      * represents.
@@ -21,9 +31,16 @@ public class DrumDetailFragment extends Fragment {
     public static final String ARG_ITEM_ID = "item_id";
 
     /**
-     * The dummy content this fragment is presenting.
+     * The content this fragment is presenting.
      */
-    private TunerContentProvider.DrumItem mItem;
+    private DrumSet.Drum mItem;
+
+    private Context context;
+    private View rootView;
+
+    // recording parameters
+    final int SAMPLING_RATE = 8000;
+    private boolean recording = false;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -36,25 +53,129 @@ public class DrumDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        context = getActivity().getApplicationContext();
+
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             // Load the dummy content specified by the fragment
             // arguments. In a real-world scenario, use a Loader
             // to load content from a content provider.
-            mItem = TunerContentProvider.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+            TunerContentProvider cp = new TunerContentProvider(context);
+            mItem = cp.getDrumsMap().get(getArguments().getString(ARG_ITEM_ID));
 
         }
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        stopRecording();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        startRecording();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.drum_detail, container, false);
+        rootView = inflater.inflate(R.layout.drum_detail, container, false);
 
-        ((TextView) rootView.findViewById(R.id.drumDetailNameText)).setText(mItem.name);
-        ((TextView) rootView.findViewById(R.id.batterFreqText)).setText(String.format("%d", mItem.freqBatter));
-        ((TextView) rootView.findViewById(R.id.resoFreqText)).setText(String.format("%d", mItem.freqReso));
+        ((TextView) rootView.findViewById(R.id.drumDetailNameText)).setText(mItem.getName());
+        ((TextView) rootView.findViewById(R.id.batterFreqText)).setText(String.format("%d", mItem.getBatterFreq()));
+        ((TextView) rootView.findViewById(R.id.resoFreqText)).setText(String.format("%d", mItem.getResoFreq()));
 
 
         return rootView;
+    }
+
+    private void startRecording() {
+        if (recording) {
+            return;
+        }
+
+        Log.i(TAG, "Start recording");
+        recording = true;
+
+        new Thread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        final int CHANNEL = AudioFormat.CHANNEL_IN_MONO;
+                        final int FORMAT = AudioFormat.ENCODING_PCM_16BIT;
+                        final int BUFFER_SIZE = AudioRecord.getMinBufferSize(
+                                SAMPLING_RATE, CHANNEL, FORMAT);
+
+                        short[] buffer = new short[BUFFER_SIZE];
+
+                        AudioRecord recorder = new AudioRecord(
+                                MediaRecorder.AudioSource.MIC,
+                                SAMPLING_RATE,
+                                CHANNEL,
+                                FORMAT,
+                                BUFFER_SIZE * 10
+                        );
+
+                        recorder.startRecording();
+
+                        while (recording) {
+                            int read = recorder.read(buffer, 0, buffer.length);
+
+                            onNewBufferRead(buffer, read);
+
+                            try {
+                                Thread.sleep(50);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        recorder.stop();
+                        recorder.release();
+                    }
+                }
+        ).start();
+    }
+
+    private void stopRecording() {
+        if (!recording) {
+            return;
+        }
+        Log.i(TAG, "Stop Recording");
+        recording = false;
+    }
+
+    private void onNewBufferRead(short[] buffer, int size) {
+        Yin pitchDetector = new Yin(SAMPLING_RATE, size);
+
+        final PitchDetectionResult result = pitchDetector.getPitch(shortBufferToFloat(buffer));
+        float freq = result.getPitch();
+        final float roundedFreq = Math.round(freq * 10) / 10.0f;
+
+
+        if (freq < 0) {
+            return;
+        }
+
+        final TextView textField = (TextView) rootView.findViewById(R.id.currentFreqText);
+
+        textField.post(new Runnable() {
+            @Override
+            public void run() {
+                textField.setText(String.format("%.1f", roundedFreq));
+            }
+        });
+    }
+
+    private float[] shortBufferToFloat(short[] sBuffer) {
+        float[] fBuffer = new float[sBuffer.length];
+        int i = 0;
+        for (short b : sBuffer) {
+            fBuffer[i] = ((float) b) / (float) Math.pow(2, 15);
+            i++;
+        }
+
+        return fBuffer;
     }
 }

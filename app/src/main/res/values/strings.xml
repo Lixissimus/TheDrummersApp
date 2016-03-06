@@ -6,4 +6,5 @@
     <string name="defaultHzValue">440.0</string>
     <string name="title_drum_list">Drums</string>
     <string name="title_drum_detail">Drum Detail</string>
+    <string name="hz_string">Hz</string>
 </resources>
