@@ -6,18 +6,18 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class DBHandler extends SQLiteOpenHelper {
 
     private static final String TAG = "DrummersAppDBHandler";
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 3;
     private static final String DATABASE_NAME = "drummersapp.db";
-    public static final String TABLE_CONFIGURATIONS = "configurations";
+    public static final String TABLE_DRUMSETS = "drumsets";
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_NAME = "name";
-    public static final String COLUMN_TOMS = "toms";
+    public static final String COLUMN_DRUMS = "drums";
+    public static final String COLUMN_FREQS = "freqs";
 
 
     public DBHandler(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
@@ -26,73 +26,80 @@ public class DBHandler extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String query = "CREATE TABLE " + TABLE_CONFIGURATIONS + "(" +
+        String query = "CREATE TABLE " + TABLE_DRUMSETS + "(" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_NAME + " TEXT, " +
-                COLUMN_TOMS + " TEXT " +
+                COLUMN_DRUMS + " TEXT, " +
+                COLUMN_FREQS + " TEXT " +
                 ");";
         db.execSQL(query);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONFIGURATIONS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DRUMSETS);
         onCreate(db);
     }
 
-    public void addConfiguration(Configuration configuration) {
+    public void addDrumSet(DrumSet drumSet) {
         ContentValues values = new ContentValues();
-        values.put(COLUMN_NAME, configuration.get_name());
-        values.put(COLUMN_TOMS, configuration.get_tomsString());
+        values.put(COLUMN_NAME, drumSet.getConfigName());
+        values.put(COLUMN_DRUMS, drumSet.getDrumsString());
+        values.put(COLUMN_FREQS, drumSet.getFreqsString());
 
         SQLiteDatabase db = getWritableDatabase();
-        db.insert(TABLE_CONFIGURATIONS, null, values);
+        db.insert(TABLE_DRUMSETS, null, values);
         db.close();
     }
 
-    public void deleteConfiguration(String configName) {
+    public void deleteDrumSet(String drumSetName) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_CONFIGURATIONS + " WHERE " + COLUMN_NAME + "=\"" + configName + "\";");
+        db.execSQL("DELETE FROM " + TABLE_DRUMSETS + " WHERE " + COLUMN_NAME + "=\"" + drumSetName + "\";");
     }
 
     // return configurations as String
-    public String configurationsToString() {
-        Log.d(TAG, "start conversion");
-        String configString = "";
+    public String drumSetsToString() {
+        String drumSetString = "";
         SQLiteDatabase db = getWritableDatabase();
-        String query = "SELECT * FROM " + TABLE_CONFIGURATIONS + " WHERE 1";
+        String query = "SELECT * FROM " + TABLE_DRUMSETS + " WHERE 1";
 
         Cursor c = db.rawQuery(query, null);
         c.moveToFirst();
 
         while (!c.isAfterLast()) {
             String name = c.getString(c.getColumnIndex(COLUMN_NAME));
-            String toms = c.getString(c.getColumnIndex(COLUMN_TOMS));
-            configString += name + ": " + toms + "\n";
+            String toms = c.getString(c.getColumnIndex(COLUMN_DRUMS));
+            String freqs = c.getString(c.getColumnIndex(COLUMN_FREQS));
+            drumSetString += name + ": " + toms + " - " + freqs + "\n";
             c.moveToNext();
         }
 
         db.close();
-        Log.d(TAG, "done conversion");
-        return configString;
+        return drumSetString;
     }
 
-    public void dropConfigurations() {
+    public void dropDrumSets() {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONFIGURATIONS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DRUMSETS);
         onCreate(db);
     }
 
     public void seed() {
-        // remove all configurations first
-        dropConfigurations();
+        // remove all drum sets first
+        dropDrumSets();
 
-        int[] toms1 = {220, 340, 480};
-        Configuration c1 = new Configuration("Set 1", toms1);
-        addConfiguration(c1);
+        DrumSet gretsch = new DrumSet("Catalina Maple");
+        gretsch.addDrum(new DrumSet.Drum("Snare", 350, 400));
+        gretsch.addDrum(new DrumSet.Drum("Tom 1", 220, 230));
+        gretsch.addDrum(new DrumSet.Drum("Tom 2", 140, 145));
 
-        int[] toms2 = {200, 310, 400, 520};
-        Configuration c2 = new Configuration("Set 2", toms2);
-        addConfiguration(c2);
+        DrumSet sonor = new DrumSet("Sonor SQ2");
+        sonor.addDrum(new DrumSet.Drum("Snare", 320, 324));
+        sonor.addDrum(new DrumSet.Drum("Tom 1", 240, 240));
+        sonor.addDrum(new DrumSet.Drum("Tom 2", 190, 195));
+        sonor.addDrum(new DrumSet.Drum("Tom 3", 140, 140));
+
+        addDrumSet(gretsch);
+        addDrumSet(sonor);
     }
 }

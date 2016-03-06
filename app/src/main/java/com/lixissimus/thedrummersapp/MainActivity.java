@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import be.tarsos.dsp.pitch.PitchDetectionResult;
@@ -49,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void printDBButtonClicked(View view) {
-        String contents = dbHandler.configurationsToString();
+        String contents = dbHandler.drumSetsToString();
         textViewDB.setText(contents);
     }
 

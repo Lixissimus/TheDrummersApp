@@ -4,4 +4,6 @@
     <string name="stopButtonText">Stop</string>
     <string name="freqUnitString">Hz</string>
     <string name="defaultHzValue">440.0</string>
+    <string name="title_drum_list">Drums</string>
+    <string name="title_drum_detail">Drum Detail</string>
 </resources>
