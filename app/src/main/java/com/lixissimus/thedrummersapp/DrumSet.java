@@ -101,13 +101,13 @@ public class DrumSet {
         drumsString = "";
         freqsString = "";
         for (Drum drum : drums.values()) {
-            drumsString += drum.getName() + ", ";
-            freqsString += drum.getBatterFreq() + ", " + drum.getResoFreq() + ", ";
+            drumsString += drum.getName() + ",";
+            freqsString += drum.getBatterFreq() + "," + drum.getResoFreq() + ",";
         }
 
-        // remove the last ', '
-        drumsString = drumsString.substring(0, drumsString.length() - 2);
-        freqsString = freqsString.substring(0, freqsString.length() - 2);
+        // remove the last ','
+        drumsString = drumsString.substring(0, drumsString.length() - 1);
+        freqsString = freqsString.substring(0, freqsString.length() - 1);
 
         stringsValid = true;
     }

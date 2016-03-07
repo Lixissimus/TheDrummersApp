@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,9 +34,9 @@ public class DrumListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drum_list);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setTitle(getTitle());
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
+//        toolbar.setTitle(getTitle());
 
         View recyclerView = findViewById(R.id.drum_list);
         assert recyclerView != null;
@@ -93,7 +92,7 @@ public class DrumListActivity extends AppCompatActivity {
                     } else {
                         Context context = v.getContext();
                         Intent intent = new Intent(context, DrumDetailActivity.class);
-                        intent.putExtra(DrumDetailFragment.ARG_ITEM_ID, holder.mItem.getName());
+                        intent.putExtra(DrumDetailFragment.ARG_ITEM_ID, holder.mItem.getName().trim());
 
                         context.startActivity(intent);
                     }
