@@ -33,7 +33,7 @@ public class DrumDetailFragment extends Fragment {
     /**
      * The content this fragment is presenting.
      */
-    private DrumSet.Drum mItem;
+    private DrumSet.Drum drum;
 
     private Context context;
     private View rootView;
@@ -41,6 +41,13 @@ public class DrumDetailFragment extends Fragment {
     // recording parameters
     final int SAMPLING_RATE = 8000;
     private boolean recording = false;
+
+    private TextView targetFreqText;
+    private TextView currentFreqText;
+    private TextView freqDiffText;
+    private TextView probabilityText;
+
+    private int targetFreq;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -60,7 +67,7 @@ public class DrumDetailFragment extends Fragment {
             // arguments. In a real-world scenario, use a Loader
             // to load content from a content provider.
             TunerContentProvider cp = new TunerContentProvider(context);
-            mItem = cp.getDrumsMap().get(getArguments().getString(ARG_ITEM_ID));
+            drum = cp.getDrumsMap().get(getArguments().getString(ARG_ITEM_ID));
 
         }
     }
@@ -82,9 +89,17 @@ public class DrumDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.drum_detail, container, false);
 
-        ((TextView) rootView.findViewById(R.id.drumDetailNameText)).setText(mItem.getName());
-        ((TextView) rootView.findViewById(R.id.batterFreqText)).setText(String.format("%d", mItem.getBatterFreq()));
-        ((TextView) rootView.findViewById(R.id.resoFreqText)).setText(String.format("%d", mItem.getResoFreq()));
+        targetFreqText = (TextView) rootView.findViewById(R.id.targetFreqText);
+        currentFreqText = (TextView) rootView.findViewById(R.id.currentFreqText);
+        freqDiffText = (TextView) rootView.findViewById(R.id.freqDiffText);
+        probabilityText = (TextView) rootView.findViewById(R.id.probabilityText);
+
+        targetFreqText.setText(String.format("%d", drum.getBatterFreq()));
+        targetFreq = drum.getBatterFreq();
+
+        ((TextView) rootView.findViewById(R.id.drumDetailNameText)).setText(drum.getName());
+        ((TextView) rootView.findViewById(R.id.batterFreqText)).setText(String.format("%d", drum.getBatterFreq()));
+        ((TextView) rootView.findViewById(R.id.resoFreqText)).setText(String.format("%d", drum.getResoFreq()));
 
 
         return rootView;
@@ -158,12 +173,12 @@ public class DrumDetailFragment extends Fragment {
             return;
         }
 
-        final TextView textField = (TextView) rootView.findViewById(R.id.currentFreqText);
-
-        textField.post(new Runnable() {
+        currentFreqText.post(new Runnable() {
             @Override
             public void run() {
-                textField.setText(String.format("%.1f", roundedFreq));
+                currentFreqText.setText(String.format("%.1f", roundedFreq));
+                freqDiffText.setText(String.format("%.1f", roundedFreq - targetFreq));
+                probabilityText.setText(String.format("%.2f", result.getProbability()));
             }
         });
     }
